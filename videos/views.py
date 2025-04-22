@@ -156,7 +156,6 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from dotenv import load_dotenv
 
-# Initialize environment
 load_dotenv()
 logger = logging.getLogger(__name__)
 
@@ -164,7 +163,6 @@ logger = logging.getLogger(__name__)
 def search(request):
     if request.method == "POST":
         try:
-            # Validate request
             try:
                 data = json.loads(request.body)
                 search_query = data.get("prompt", "").strip()
@@ -174,20 +172,17 @@ def search(request):
             if not search_query:
                 return JsonResponse({"error": "Search query cannot be empty"}, status=400)
 
-            # Get YouTube API key
             YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
             if not YOUTUBE_API_KEY:
                 logger.error("YouTube API key not found in environment variables")
                 return JsonResponse({"error": "Service configuration error"}, status=500)
 
-            # Initialize YouTube service
             try:
                 youtube = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
             except Exception as e:
                 logger.error(f"Failed to initialize YouTube client: {str(e)}")
                 return JsonResponse({"error": "Service initialization failed"}, status=500)
 
-            # Search YouTube
             try:
                 search_response = youtube.search().list(
                     q=search_query,
@@ -201,12 +196,11 @@ def search(request):
                 return JsonResponse({
                     "error": "YouTube API request failed",
                     "code": e.resp.status
-                }, status=502)  # Bad Gateway
+                }, status=502)  
             except Exception as e:
                 logger.error(f"Search failed: {str(e)}")
                 return JsonResponse({"error": "Search failed"}, status=500)
 
-            # Process results
             video_ids = []
             for item in search_response.get('items', []):
                 if 'videoId' in item.get('id', {}):
@@ -215,7 +209,6 @@ def search(request):
             if not video_ids:
                 return JsonResponse({"videos": [], "message": "No videos found"})
 
-            # Get video details
             try:
                 videos_response = youtube.videos().list(
                     part='snippet,statistics',
@@ -225,7 +218,6 @@ def search(request):
                 logger.error(f"YouTube API details error: {str(e)}")
                 return JsonResponse({"error": "Failed to get video details"}, status=502)
 
-            # Format response
             video_data = []
             for item in videos_response.get('items', []):
                 try:
@@ -260,13 +252,10 @@ def search(request):
 
     return JsonResponse({"error": "Only POST requests are accepted"}, status=405)
 
-# Helper function to analyze a video (similar to your analyze_youtube_video)
 def analyze_video(video_id):
     try:
-        # Get comments (using YouTube API or your database)
         comments = get_video_comments(video_id)  # You'll need to implement this
         
-        # Sentiment analysis
         positive = 0
         neutral = 0
         negative = 0
