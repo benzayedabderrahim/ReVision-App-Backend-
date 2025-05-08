@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 import django_filters
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class RegistrationCode(models.Model):
@@ -26,6 +27,7 @@ class Video(models.Model):
     query = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    tags = models.TextField(blank=True, null=True)
     
     class Meta:
         ordering = ['-upload_date']
@@ -68,3 +70,30 @@ class VideoFilter(django_filters.FilterSet):
     class Meta:
         model = Video
         fields = ['title', 'channel', 'description']
+
+
+
+class VideoSimilarity(models.Model):
+    source_video = models.ForeignKey(
+        'Video',
+        on_delete=models.CASCADE,
+        related_name='similar_to'
+    )
+    target_video = models.ForeignKey(
+        'Video',
+        on_delete=models.CASCADE,
+        related_name='similar_from'
+    )
+    similarity_score = models.FloatField(
+        validators=[MinValueValidator(0), MaxValueValidator(1)],
+        help_text="How similar these videos are (0-1)"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [['source_video', 'target_video']]
+        verbose_name_plural = "Video Similarities"
+        ordering = ['-similarity_score']
+
+    def __str__(self):
+        return f"{self.source_video} ↔ {self.target_video}: {self.similarity_score:.2f}"
