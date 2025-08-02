@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import get_video_graph_data, similar_videos, get_related_videos, get_video_details, calculate_similarity, random_videos, p,analyze_youtube_video, get_video_comments, algorithm_videos, dl_videos, dbvds, search, signup, firebase_login 
-
+# ALL URLS ARE HERE
 urlpatterns = [
     path("api/auth/login/", firebase_login, name="firebase_login"),
     path("api/auth/signup/", signup, name="signup"),
@@ -17,7 +17,4 @@ urlpatterns = [
     path('api/related_videos/<int:video_id>/', get_related_videos),
     path("api/videos/<str:video_id>/similar/", similar_videos, name="similar_videos"),
     path('api/videos/<str:video_id>/graph/', get_video_graph_data, name='video_graph_data'),
-
-
-
 ]
