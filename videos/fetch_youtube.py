@@ -18,7 +18,6 @@ django.setup()
 
 from videos.models import Video, Comment
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -28,7 +27,6 @@ logging.basicConfig(
     ]
 )
 
-# YouTube API configuration
 API_KEY = os.getenv("YOUTUBE_API_KEY")
 if not API_KEY:
     logging.error("""
@@ -42,7 +40,6 @@ SEARCH_URL = "https://www.googleapis.com/youtube/v3/search"
 VIDEO_DETAILS_URL = "https://www.googleapis.com/youtube/v3/videos"
 COMMENTS_URL = "https://www.googleapis.com/youtube/v3/commentThreads"
 
-# Initialize sentiment analyzer
 try:
     sentiment_analyzer = pipeline(
         "sentiment-analysis",
@@ -133,7 +130,7 @@ def fetch_video_comments(video_id, max_results=100):
             if not next_page_token:
                 break
                 
-            time.sleep(1)  # Respect YouTube API rate limits
+            time.sleep(1)  
                 
     except Exception as e:
         logging.error(f"Error fetching comments for {video_id}: {e}")
@@ -211,7 +208,7 @@ def fetch_and_save_videos(query, max_videos=20):
             for item in search_data.get("items", []) 
             if item.get("id", {}).get("videoId")
         ]
-        
+        # fetching
         with ThreadPoolExecutor(max_workers=5) as executor:
             for video_id in video_ids:
                 executor.submit(process_video, video_id, query)
