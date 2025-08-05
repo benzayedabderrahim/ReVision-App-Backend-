@@ -208,7 +208,7 @@ def fetch_and_save_videos(query, max_videos=20):
             for item in search_data.get("items", []) 
             if item.get("id", {}).get("videoId")
         ]
-        # fetching
+        # fetching data
         with ThreadPoolExecutor(max_workers=5) as executor:
             for video_id in video_ids:
                 executor.submit(process_video, video_id, query)
